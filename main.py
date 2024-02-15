@@ -1,4 +1,3 @@
-import urllib.request
-url = 'https://api.um.warszawa.pl/api/action/datastore_search?resource_id=f2e5503e-927d-4ad3-9500-4ab9e55deb59&limit=5'
-fileobj = urllib.request.urlopen(url)
-print(fileobj.read())
+import collecting_data.buses_locations
+
+collecting_data.buses_locations.get_buses_locations(n=1, interval=1,filename="locations.csv")
