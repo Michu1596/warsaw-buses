@@ -1,25 +1,12 @@
-import analyser
 import pandas as pd
 import os
-from math import radians, sin, cos, sqrt, atan2
 import time
+
+from analyser import distance2
 
 
 def distance(lat1, lon1, lat2, lon2):
     return distance2(lon2 - lon1, lat2 - lat1)
-
-
-def distance2(dlon, dlat):
-    # The math module contains a function named radians which converts from degrees to radians.
-    # The radius of the Earth in Poland is 6363.564 km
-    dlon = radians(dlon)
-    dlat = radians(dlat)
-    R = 6363.564
-    # Haversine formula
-    a = sin(dlat / 2) ** 2 + cos(dlat) * cos(dlat) * sin(dlon / 2) ** 2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
-    dist = R * c
-    return abs(dist)
 
 
 def exceeded_limit(limit, dlon, dlat, time_diff, vehicle_number, vechicle_number_match):
