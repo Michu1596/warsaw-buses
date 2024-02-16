@@ -11,7 +11,8 @@ def bus_to_dict(bus):
         'lines': bus.lines,
         'brigade': bus.brigade,
         'vehicle_number': bus.vehicle_number,
-        'location': bus.location,
+        'dl_geo': bus.location.longitude,
+        'szer_geo': bus.location.latitude,
         'type': bus.type
     }
 
