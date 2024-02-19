@@ -178,7 +178,19 @@ def get_all_departures_from_stops_for_line(line, stops_set):
     collected_data.to_csv('schedules' + line + '.csv', index=False)
 
 
-stops = get_all_stops_for_line('180')
-print(stops)
-get_all_departures_from_stops_for_line('180', stops)
+def save_all_bus_stops_for_line(line):
+    stops_set = get_all_stops_for_line(line)
+    print(stops_set)
+    all_stops = pd.read_csv('bus_stops.csv')
+    # zespol and slupek to string
+    all_stops['zespol'] = all_stops['zespol'].astype(str)
+    all_stops['slupek'] = all_stops['slupek'].astype(str)
+    print(all_stops)
+    mask = all_stops.apply(lambda row: (row['zespol'], row['slupek']) in stops_set, axis=1)
+    stops_df = all_stops[mask]
+    stops_df.to_csv('possible_bus_stops' + line + '.csv', index=False)
 
+
+stops = get_all_stops_for_line('180')
+# get_all_departures_from_stops_for_line('180', stops)
+save_all_bus_stops_for_line('180')
