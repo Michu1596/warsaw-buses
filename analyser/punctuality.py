@@ -5,11 +5,11 @@ from analyser import distance2
 import time
 
 
-def punctuality_of_line(line):
+def punctuality_of_line(locations_file, line):
     # from data directory import lcoations20_40.csv to dataframe
     point0 = time.time()
-    locations = pd.read_csv('..\\data\\locations20_40.csv')
-    # chceck if schedule + line + .csv exists and if not, throw an error
+    locations = pd.read_csv('..\\data\\' + locations_file)
+    # chceck if schedules + line + .csv exists and if not, throw an error
     if not os.path.isfile('..\\data\\schedules' + line + '.csv'):
         raise FileNotFoundError('File not found')
     # from data directory import schedules + line + .csv to dataframe
@@ -74,4 +74,4 @@ def test_punctuality_of_line(line, treshold=3):
 
 
 # punctuality_of_line('180')
-test_punctuality_of_line('180')
+# test_punctuality_of_line('180')

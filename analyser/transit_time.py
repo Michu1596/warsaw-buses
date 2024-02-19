@@ -84,6 +84,8 @@ def fit_to_schedule(line):
         df = df.merge(transit_time, left_on=['nr_zespolu', 'next_stop_id'], right_on=['zespol', 'next_stop_id'])
         max_time_diff = df['time_diff'].max()
         min_time_diff = df['time_diff'].min()
+        # round time_diff to 2 decimal places
+        df['time_diff'] = df['time_diff'].round(2)
         yellow = (255, 255, 0)
         blue = (0, 0, 255)
         # make column color and set to gradient from blue to yellow
