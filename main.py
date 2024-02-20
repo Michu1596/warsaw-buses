@@ -4,6 +4,8 @@ import analyser.punctuality
 import analyser.transit_time
 import analyser.buses_in_districts
 import argparse
+import cProfile
+import pstats
 
 # collecting_data.buses_locations.get_buses_locations(n=360, interval=10,filename="locations16_56.csv")
 parser = argparse.ArgumentParser(description='basic analysis of buses in Warsaw')
@@ -18,23 +20,30 @@ parser.add_argument('-threshold', type=int, help='Threshold for punctuality', de
 
 # if operation is get_buses_locations then collect data
 args = parser.parse_args()
-if args.operation == 'get_buses_locations':
-    collecting_data.buses_locations.get_buses_locations(n=args.n, interval=args.i, filename=args.fout)
-elif args.operation == 'exceeded_velocity':
-    # if fout is specified then use it as output file
-    if args.fout:
-        analyser.velocity.exceeded_velocity(args.limit, args.fin,output_file=args.fout)
+
+with cProfile.Profile() as profile:
+    if args.operation == 'get_buses_locations':
+        collecting_data.buses_locations.get_buses_locations(n=args.n, interval=args.i, filename=args.fout)
+    elif args.operation == 'exceeded_velocity':
+        # if fout is specified then use it as output file
+        if args.fout:
+            analyser.velocity.exceeded_velocity(args.limit, args.fin, output_file=args.fout)
+        else:
+            analyser.velocity.exceeded_velocity(args.limit, args.fin)
+    elif args.operation == 'punctuality':
+        analyser.punctuality.punctuality_of_line(args.fin, args.line)
+        analyser.punctuality.test_punctuality_of_line(args.line)
+    elif args.operation == 'transit_time':
+        analyser.transit_time.buses_on_bus_stops(args.fin, args.line)
+        analyser.transit_time.calculate_transit_time(args.line)
+        analyser.transit_time.fit_to_schedule(args.line)
+    elif args.operation == 'buses_in_districts':
+        analyser.buses_in_districts.district_of_bus(args.fin)
+        analyser.buses_in_districts.buses_in_districts('buses_locations_with_district.csv')
     else:
-        analyser.velocity.exceeded_velocity(args.limit, args.fin)
-elif args.operation == 'punctuality':
-    analyser.punctuality.punctuality_of_line(args.fin, args.line)
-    analyser.punctuality.test_punctuality_of_line(args.line)
-elif args.operation == 'transit_time':
-    analyser.transit_time.buses_on_bus_stops(args.fin, args.line)
-    analyser.transit_time.calculate_transit_time(args.line)
-    analyser.transit_time.fit_to_schedule(args.line)
-elif args.operation == 'buses_in_districts':
-    analyser.buses_in_districts.buses_in_districts(args.fin)
-    analyser.buses_in_districts.district_of_bus('buses_in_districts.csv')
-else:
-    print("Operation not recognised")
+        print("Operation not recognised")
+
+stats = pstats.Stats(profile)
+stats.sort_stats(pstats.SortKey.TIME)
+# save to file
+stats.dump_stats('profile_stats\\profile_stats.prof')
