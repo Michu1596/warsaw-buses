@@ -74,7 +74,6 @@ def fit_to_schedule(line):
     transit_time['next_stop_id'] = transit_time['next_stop_id'].astype(str)
     line_routes = all_routes['result'][line]
     for route in line_routes:
-        print(route)
         df = pd.DataFrame(line_routes[route])
         # flip the dataframe
         df = df.T

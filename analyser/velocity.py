@@ -77,8 +77,6 @@ def exceeded_velocity(limit, locations_file, output_file='velocity_exceeded.csv'
     time2c = time.time()
     print("Time to filter: ", time2c - time2b)
 
-    # print columns velocity_exceeded, vehicle_number_match, time, vehicle_number
-    print(diff_pd[['velocity_exceeded', 'vehicle_number_match', 'time', 'vehicle_number']])
     meta_data = dict()
     meta_data['how_many_rows'] = len(diff_pd)
     meta_data['how_many_vehicles'] = len(diff_pd['vehicle_number'].unique())
