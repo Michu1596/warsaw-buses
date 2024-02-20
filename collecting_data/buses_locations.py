@@ -41,5 +41,3 @@ def get_buses_locations(interval=10, n=10, filename='buses_locations.csv',
     collected_data = pd.concat(dfs, ignore_index=True)
     collected_data.to_csv(filename, index=False)
     print("Data collected and saved to", filename)
-
-#

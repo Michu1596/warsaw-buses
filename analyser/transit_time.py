@@ -50,7 +50,11 @@ def calculate_transit_time(line):
     buses_on_stops['vechicle_number_match'] = (buses_on_stops['vehicle_number'] ==
                                                buses_on_stops['vehicle_number'].shift(-1))
     buses_on_stops['next_stop_name'] = buses_on_stops['nazwa_zespolu'].shift(-1)
+    # zespol to string
+    buses_on_stops['zespol'] = buses_on_stops['zespol'].astype(str)
     buses_on_stops['next_stop_id'] = buses_on_stops['zespol'].shift(-1)
+    # next_stop_id to string
+    buses_on_stops['next_stop_id'] = buses_on_stops['next_stop_id'].astype(str)
     buses_on_stops = buses_on_stops.drop(columns=['szer_geo_bus', 'dl_geo_bus'])
     # remove rows where vehicle_number_match is False
     buses_on_stops = buses_on_stops[buses_on_stops['vechicle_number_match']]
@@ -66,7 +70,7 @@ def calculate_transit_time(line):
     return buses_on_stops
 
 
-def fit_to_schedule(line):
+def fit_to_schedule(line, output_file='fit_to_schedule.csv'):
     all_routes = pd.read_json('data\\all_routes.json')
     # read transit_time + line + .csv
     transit_time = pd.read_csv('data\\transit_time' + line + '.csv')
@@ -79,6 +83,7 @@ def fit_to_schedule(line):
         df = pd.DataFrame(line_routes[route])
         # flip the dataframe
         df = df.T
+        print(route, df.size)
         # index to int
         df.index = df.index.astype(int)
         # sort by index
@@ -86,6 +91,7 @@ def fit_to_schedule(line):
         df['next_stop_id'] = df['nr_zespolu'].shift(-1)
         # merge with transit_time by zespol and next_stop_id
         df = df.merge(transit_time, left_on=['nr_zespolu', 'next_stop_id'], right_on=['zespol', 'next_stop_id'])
+        print(route, df.size, '\n')
         max_time_diff = df['time_diff'].max()
         min_time_diff = df['time_diff'].min()
         # round time_diff to 2 decimal places
@@ -96,7 +102,7 @@ def fit_to_schedule(line):
         df['color'] = df['time_diff'].apply(lambda x: gradient(min_time_diff, max_time_diff, x, blue, yellow))
         # df['color'] = df['time_diff'].apply(lambda x: "rgb(0, 0, 255)" if x < 1 else "rgb(255, 255, 0)")
         # save to csv
-        df.to_csv('data\\fit_to_schedule' + line + route + '.csv', index=False)
+        df.to_csv('data\\' + route + output_file, index=False)
 
     # print(line_routes)
 

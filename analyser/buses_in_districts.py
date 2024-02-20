@@ -3,12 +3,17 @@ from shapely.geometry import shape, Point
 import pandas as pd
 import os
 
+count = 0
 # from data directory import warszawa-dzielnice.geojson
 with open('data\\warszawa-dzielnice.geojson') as f:
     districts = json.load(f)
 
 
 def district_of_point(point):
+    global count
+    count += 1
+    if count % 1000 == 0:
+        print(count)
     for district in districts['features']:
         polygon = shape(district['geometry'])
         # check if point is in district

@@ -61,8 +61,6 @@ bus_stops = bus_stops.set_index(['zespol', 'slupek'])
 # sort bus_stops by index
 bus_stops = bus_stops.sort_index()
 ztm = collecting_data.ztm
-print("LOC")
-print(bus_stops.loc['1001', '1'].nazwa_zespolu.iloc[0])
 
 
 def get_all_schedules():
@@ -113,7 +111,7 @@ def get_all_schedules():
     # concatenate dataframes
     collected_data = pd.concat(dfs, ignore_index=True)
     # save to csv
-    collected_data.to_csv('schedules.csv', index=False)
+    collected_data.to_csv('data\\schedules.csv', index=False)
 
 
 def get_all_stops_for_line(line):
@@ -175,7 +173,7 @@ def get_all_departures_from_stops_for_line(line, stops_set):
     # concatenate dataframes
     collected_data = pd.concat(dfs, ignore_index=True)
     # save to csv
-    collected_data.to_csv('schedules' + line + '.csv', index=False)
+    collected_data.to_csv('data\\schedules' + line + '.csv', index=False)
 
 
 def save_all_bus_stops_for_line(line):
@@ -188,9 +186,9 @@ def save_all_bus_stops_for_line(line):
     print(all_stops)
     mask = all_stops.apply(lambda row: (row['zespol'], row['slupek']) in stops_set, axis=1)
     stops_df = all_stops[mask]
-    stops_df.to_csv('possible_bus_stops' + line + '.csv', index=False)
+    stops_df.to_csv('data\\possible_bus_stops' + line + '.csv', index=False)
 
 
-stops = get_all_stops_for_line('190')
-get_all_departures_from_stops_for_line('190', stops)
+# stops = get_all_stops_for_line('190')
+# get_all_departures_from_stops_for_line('190', stops)
 # save_all_bus_stops_for_line('180')

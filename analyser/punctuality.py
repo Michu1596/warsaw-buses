@@ -49,7 +49,6 @@ def punctuality_of_line(locations_file, line, km_threshold=0.10):
     buses_on_stops = buses_on_stops[mask]
     point4 = time.time()
     print("Time to calculate time difference: ", point4 - point3)
-    print(buses_on_stops)
     # remove duplicate rows
     buses_on_stops = buses_on_stops.drop_duplicates()
     # remove rows with NaN values
@@ -58,7 +57,7 @@ def punctuality_of_line(locations_file, line, km_threshold=0.10):
     buses_on_stops.to_csv('data\\buses_on_stops' + line + '.csv', index=False)
 
 
-def test_punctuality_of_line(line, threshold=3):
+def test_punctuality_of_line(line, threshold=3, output_file='buses_late_or_early.csv'):
     time0 = time.time()
     buses_on_stops = pd.read_csv('data\\buses_on_stops' + line + '.csv')
     time1 = time.time()
@@ -74,7 +73,10 @@ def test_punctuality_of_line(line, threshold=3):
     buses_on_stops = buses_on_stops[buses_on_stops['time_diff'] > threshold]
     # discard columns brigade, szer_geo_bus, dl_geo_bus, id_ulicy
     buses_on_stops = buses_on_stops.drop(columns=['brigade', 'szer_geo_bus', 'dl_geo_bus', 'id_ulicy'])
-    buses_on_stops.to_csv('data\\buses_late_or_early' + line + '.csv', index=False)
+    # group by zespol and slupek and take mean of time_diff
+    buses_on_stops = buses_on_stops.groupby(['zespol', 'slupek', 'szer_geo_stop',
+                                             'dl_geo_stop', 'nazwa_zespolu']).agg({'time_diff': 'mean'}).reset_index()
+    buses_on_stops.to_csv('data\\' + output_file, index=False)
     time2 = time.time()
     print("Time to finish: ", time2 - time1)
 
