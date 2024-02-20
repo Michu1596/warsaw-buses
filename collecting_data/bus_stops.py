@@ -191,6 +191,6 @@ def save_all_bus_stops_for_line(line):
     stops_df.to_csv('possible_bus_stops' + line + '.csv', index=False)
 
 
-stops = get_all_stops_for_line('180')
-# get_all_departures_from_stops_for_line('180', stops)
-save_all_bus_stops_for_line('180')
+stops = get_all_stops_for_line('190')
+get_all_departures_from_stops_for_line('190', stops)
+# save_all_bus_stops_for_line('180')

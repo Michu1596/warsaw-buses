@@ -35,6 +35,8 @@ def buses_on_bus_stops(locations_file, line, km_threshold=0.10):
                                      'dl_geo_stop', 'kierunek', 'szer_geo_bus', 'dl_geo_bus']]
     # remove duplicate rows where vehicle_number and zespol are the same
     buses_on_stops = buses_on_stops.drop_duplicates(subset=['vehicle_number', 'zespol'])
+    # remove rows with NaN values
+    buses_on_stops = buses_on_stops.dropna()
     buses_on_stops.to_csv('data\\buses_on_stops_simplified' + line + '.csv', index=False)
     return buses_on_stops
 

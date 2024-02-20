@@ -30,9 +30,9 @@ def district_of_bus(location_file_name, output_file_name='buses_locations_with_d
 
 def buses_in_districts(location_file_name, sample_size=360, output_file_name='buses_in_districts.csv'):
     # check if location_file_name exists
-    if not os.path.isfile(location_file_name):
+    if not os.path.isfile('data\\' + location_file_name):
         raise FileNotFoundError('Locations file not found')
-    buses_locations = pd.read_csv(location_file_name)
+    buses_locations = pd.read_csv('data\\' + location_file_name)
     buses_locations = buses_locations.dropna()
     # group by district and count number of rows
     buses_locations = buses_locations.groupby('district').size().reset_index(name='count')

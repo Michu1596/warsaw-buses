@@ -5,7 +5,9 @@ from analyser import distance2
 import time
 
 
-def punctuality_of_line(locations_file, line):
+# This function uses geo data from buses and bus stops to determine if the bus is on the bus stop
+# and if it is, it saves the data to a csv file
+def punctuality_of_line(locations_file, line, km_threshold=0.10):
     # from data directory import lcoations20_40.csv to dataframe
     point0 = time.time()
     locations = pd.read_csv('data\\' + locations_file)
@@ -18,7 +20,7 @@ def punctuality_of_line(locations_file, line):
     print("Time to read csv: ", point1 - point0)
     schedules = schedules.rename(columns={'szer_geo': 'szer_geo_stop', 'dl_geo': 'dl_geo_stop',
                                           'time': 'time_stop'})
-
+    # narrow down locations to line
     locations = locations[locations['lines'] == line]
     locations = locations.rename(columns={'szer_geo': 'szer_geo_bus', 'dl_geo': 'dl_geo_bus',
                                           'time': 'time_bus'})
@@ -37,7 +39,7 @@ def punctuality_of_line(locations_file, line):
     point2 = time.time()
     print("Time to merge: ", point2 - point1)
     mask = buses_on_stops.apply(lambda row: distance2(row['dl_geo_stop'] - row['dl_geo_bus'],
-                                            row['szer_geo_stop'] - row['szer_geo_bus']) < 0.1, axis=1)
+                                            row['szer_geo_stop'] - row['szer_geo_bus']) < km_threshold, axis=1)
     point3 = time.time()
     print("Time to calculate distance: ", point3 - point2)
     buses_on_stops = buses_on_stops[mask]
@@ -48,6 +50,10 @@ def punctuality_of_line(locations_file, line):
     point4 = time.time()
     print("Time to calculate time difference: ", point4 - point3)
     print(buses_on_stops)
+    # remove duplicate rows
+    buses_on_stops = buses_on_stops.drop_duplicates()
+    # remove rows with NaN values
+    buses_on_stops = buses_on_stops.dropna()
     # save buses_on_stops to csv in data directory
     buses_on_stops.to_csv('data\\buses_on_stops' + line + '.csv', index=False)
 
