@@ -4,24 +4,27 @@ import time
 from analyser import distance2
 
 
-def buses_on_bus_stops(line, km_treshold=0.10):
+def buses_on_bus_stops(locations_file, line, km_threshold=0.10):
     # from data directory import lcoations20_40.csv to dataframe
     point0 = time.time()
-    locations = pd.read_csv('..\\data\\locations20_40.csv')
+    # check if locations_file exists
+    if not os.path.isfile('data\\' + locations_file):
+        raise FileNotFoundError('Locations file not found')
+    locations = pd.read_csv('data\\' + locations_file)
     # chceck if schedule + line + .csv exists and if not, throw an error
-    if not os.path.isfile('..\\data\\schedules' + line + '.csv'):
-        raise FileNotFoundError('File not found')
+    if not os.path.isfile('data\\schedules' + line + '.csv'):
+        raise FileNotFoundError('Schedules file not found')
     locations = locations[locations['lines'] == line]
     # remove duplicate rows
     locations = locations.drop_duplicates()
     locations = locations.rename(columns={'szer_geo': 'szer_geo_bus', 'dl_geo': 'dl_geo_bus',
                                           'time': 'time_bus'})
-    bus_stops = pd.read_csv('..\\data\\possible_bus_stops' + line + '.csv')
+    bus_stops = pd.read_csv('data\\possible_bus_stops' + line + '.csv')
     bus_stops = bus_stops.rename(columns={'szer_geo': 'szer_geo_stop', 'dl_geo': 'dl_geo_stop',
-                                         'time': 'time_stop'})
+                                          'time': 'time_stop'})
     buses_on_stops = bus_stops.merge(locations, how='cross')
     mask = buses_on_stops.apply(lambda row: distance2(row['dl_geo_stop'] - row['dl_geo_bus'],
-                                        row['szer_geo_stop'] - row['szer_geo_bus']) < km_treshold, axis=1)
+                                        row['szer_geo_stop'] - row['szer_geo_bus']) < km_threshold, axis=1)
     buses_on_stops = buses_on_stops[mask]
     # remo columns id_ulicy, brigade, type
     buses_on_stops = buses_on_stops.drop(columns=['id_ulicy', 'brigade', 'type'])
@@ -32,12 +35,12 @@ def buses_on_bus_stops(line, km_treshold=0.10):
                                      'dl_geo_stop', 'kierunek', 'szer_geo_bus', 'dl_geo_bus']]
     # remove duplicate rows where vehicle_number and zespol are the same
     buses_on_stops = buses_on_stops.drop_duplicates(subset=['vehicle_number', 'zespol'])
-    buses_on_stops.to_csv('..\\data\\buses_on_stops_simplified' + line + '.csv', index=False)
+    buses_on_stops.to_csv('data\\buses_on_stops_simplified' + line + '.csv', index=False)
     return buses_on_stops
 
 
 def calculate_transit_time(line):
-    buses_on_stops = pd.read_csv('..\\data\\buses_on_stops_simplified' + line + '.csv')
+    buses_on_stops = pd.read_csv('data\\buses_on_stops_simplified' + line + '.csv')
     buses_on_stops['time_bus'] = pd.to_datetime(buses_on_stops['time_bus'])
     buses_on_stops = buses_on_stops.sort_values(by=['vehicle_number', 'time_bus'])
     buses_on_stops['time_diff'] = buses_on_stops['time_bus'].shift(-1) - buses_on_stops['time_bus']
@@ -57,14 +60,14 @@ def calculate_transit_time(line):
     # reset index is what makes columns in aggr_by stay in the dataframe
     # remove rows where vehicle_number is less than 3
     buses_on_stops = buses_on_stops[buses_on_stops['vehicle_number'] > 2]
-    buses_on_stops.to_csv('..\\data\\transit_time' + line + '.csv', index=False)
+    buses_on_stops.to_csv('data\\transit_time' + line + '.csv', index=False)
     return buses_on_stops
 
 
 def fit_to_schedule(line):
-    all_routes = pd.read_json('..\\data\\all_routes.json')
+    all_routes = pd.read_json('data\\all_routes.json')
     # read transit_time + line + .csv
-    transit_time = pd.read_csv('..\\data\\transit_time' + line + '.csv')
+    transit_time = pd.read_csv('data\\transit_time' + line + '.csv')
     # zespol to string
     transit_time['zespol'] = transit_time['zespol'].astype(str)
     # next_stop_id to string
@@ -92,9 +95,9 @@ def fit_to_schedule(line):
         df['color'] = df['time_diff'].apply(lambda x: gradient(min_time_diff, max_time_diff, x, blue, yellow))
         # df['color'] = df['time_diff'].apply(lambda x: "rgb(0, 0, 255)" if x < 1 else "rgb(255, 255, 0)")
         # save to csv
-        df.to_csv('..\\data\\fit_to_schedule' + line + route + '.csv', index=False)
+        df.to_csv('data\\fit_to_schedule' + line + route + '.csv', index=False)
 
-    print(line_routes)
+    # print(line_routes)
 
 
 def gradient(minimum, maximum, value, color1, color2):
@@ -109,4 +112,4 @@ def gradient(minimum, maximum, value, color1, color2):
 
 # buses_on_bus_stops('180')
 # calculate_transit_time('180')
-fit_to_schedule('180')
+# fit_to_schedule('180')

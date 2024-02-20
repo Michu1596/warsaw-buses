@@ -23,11 +23,11 @@ def exceeded_limit(limit, dlon, dlat, time_diff, vehicle_number, vechicle_number
 
 
 def exceeded_velocity(limit, locations_file, output_file='velocity_exceeded.csv', meta_data_file='meta_data.csv'):
-    if not os.path.isfile(locations_file):
+    if not os.path.isfile("data\\" + locations_file):
         print("File does not exist")
         return
     start = time.time()
-    buses_locations = pd.read_csv(locations_file)
+    buses_locations = pd.read_csv("data\\" + locations_file)
     time1 = time.time()
     print("Time to read csv: ", time1 - start)
 
@@ -92,10 +92,10 @@ def exceeded_velocity(limit, locations_file, output_file='velocity_exceeded.csv'
     diff_pd = diff_pd[diff_pd['velocity_exceeded'] <= 100]
 
     # save dataframe to csv
-    diff_pd.to_csv(output_file, index=False)
+    diff_pd.to_csv("data\\" + output_file, index=False)
     # save meta data to csv
     meta_data_df = pd.DataFrame([meta_data])
-    meta_data_df.to_csv(meta_data_file, index=False)
+    meta_data_df.to_csv("data\\" + meta_data_file, index=False)
 
 
 # exceeded_velocity(50, '..\\locations20_40.csv')
