@@ -3,6 +3,7 @@ import analyser.velocity
 import analyser.punctuality
 import analyser.transit_time
 import analyser.buses_in_districts
+import collecting_data.bus_stops
 import argparse
 import cProfile
 import pstats
@@ -32,18 +33,33 @@ with cProfile.Profile() as profile:
             analyser.velocity.exceeded_velocity(args.limit, args.fin)
     elif args.operation == 'punctuality':
         analyser.punctuality.punctuality_of_line(args.fin, args.line)
-        analyser.punctuality.test_punctuality_of_line(args.line)
+        if args.fout:
+            analyser.punctuality.test_punctuality_of_line(args.line, output_file=args.fout)
+        else:
+            analyser.punctuality.test_punctuality_of_line(args.line)
     elif args.operation == 'transit_time':
         analyser.transit_time.buses_on_bus_stops(args.fin, args.line)
         analyser.transit_time.calculate_transit_time(args.line)
-        analyser.transit_time.fit_to_schedule(args.line)
+        if args.fout:
+            analyser.transit_time.fit_to_schedule(args.line, output_file=args.fout)
+        else:
+            analyser.transit_time.fit_to_schedule(args.line)
     elif args.operation == 'buses_in_districts':
         analyser.buses_in_districts.district_of_bus(args.fin)
-        analyser.buses_in_districts.buses_in_districts('buses_locations_with_district.csv')
+        if args.fout:
+            analyser.buses_in_districts.buses_in_districts('buses_locations_with_district.csv',
+                                                           output_file_name=args.fout)
+        else:
+            analyser.buses_in_districts.buses_in_districts('buses_locations_with_district.csv')
+    elif args.operation == 'get_all_departures_from_stops_for_line':
+        stop_ids = collecting_data.bus_stops.get_all_stops_for_line(args.line)
+        collecting_data.bus_stops.get_all_departures_from_stops_for_line(args.line, stop_ids)
+    elif args.operation == 'save_all_bus_stops_for_line':
+        collecting_data.bus_stops.save_all_bus_stops_for_line(args.line)
     else:
         print("Operation not recognised")
 
 stats = pstats.Stats(profile)
 stats.sort_stats(pstats.SortKey.TIME)
 # save to file
-stats.dump_stats('profile_stats\\profile_stats.prof')
+stats.dump_stats('profile_stats\\profile_stats_districts.prof')
