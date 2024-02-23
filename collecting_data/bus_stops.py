@@ -14,6 +14,7 @@ def isnumber(s):
         return False
 
 
+# This function gets positions of all bus stops in Warsaw and saves them to a csv file
 def get_bus_stops():
     bus_stops = pd.read_json('https://api.um.warszawa.pl/api/action/dbstore_get/?id=ab75c33d-3a26-4342-b36a-6e5fef0a3ac3'
                              '&page=1&size=5&apikey=1b1f637d-b66e-41d2-96ea-69befbf53515')
@@ -34,7 +35,7 @@ def get_bus_stops():
         bus_stops_normalised.loc[i] = [zespol, slupek, nazwa_zespolu, id_ulicy, szer_geo, dl_geo, kierunek]
 
     # save to csv
-    bus_stops_normalised.to_csv('bus_stops.csv', index=False)
+    bus_stops_normalised.to_csv('data\\bus_stops.csv', index=False)
 
 
 # schedule rides to dict function
@@ -47,12 +48,12 @@ def schedule_rides_to_dict(schedule):
     }
 
 
-# check if file 'bus_stops.csv' exists
-if not os.path.isfile('bus_stops.csv'):
+# check if file 'bus_stops.csv' exists and if not, get bus stops
+if not os.path.isfile('data\\bus_stops.csv'):
     get_bus_stops()
 
 # load bus_stops.csv
-bus_stops = pd.read_csv('bus_stops.csv')
+bus_stops = pd.read_csv('data\\bus_stops.csv')
 # set type of zespol and slupek to string
 bus_stops['zespol'] = bus_stops['zespol'].astype(str)
 bus_stops['slupek'] = bus_stops['slupek'].astype(str)
@@ -63,10 +64,11 @@ bus_stops = bus_stops.sort_index()
 ztm = collecting_data.ztm
 
 
+# This function gets all schedules for all bus stops and saves them to a csv file, but is never used
 def get_all_schedules():
     dfs = []
     # iterate over bus_stops
-    for i in range(10):
+    for i in range(len(bus_stops)):
         success = False
         # save the i row of bus_stops to a dictionary
         bus_stop = {
@@ -114,6 +116,7 @@ def get_all_schedules():
     collected_data.to_csv('data\\schedules.csv', index=False)
 
 
+# This function gets all stops for a given line
 def get_all_stops_for_line(line):
     line = str(line)
     stops_set = set()
@@ -146,7 +149,6 @@ def get_all_departures_from_stops_for_line(line, stops_set):
         bus_stop = {
             'zespol': stop[0],
             'slupek': stop[1],
-            # get the rest of the data from bus_stops
             'nazwa_zespolu': bus_stops.loc[stop[0], stop[1]].nazwa_zespolu.iloc[0],
             'id_ulicy': bus_stops.loc[stop[0], stop[1]].id_ulicy.iloc[0],
             'szer_geo': bus_stops.loc[stop[0], stop[1]].szer_geo.iloc[0],
@@ -179,7 +181,7 @@ def get_all_departures_from_stops_for_line(line, stops_set):
 def save_all_bus_stops_for_line(line):
     stops_set = get_all_stops_for_line(line)
     print(stops_set)
-    all_stops = pd.read_csv('bus_stops.csv')
+    all_stops = pd.read_csv('data\\bus_stops.csv')
     # zespol and slupek to string
     all_stops['zespol'] = all_stops['zespol'].astype(str)
     all_stops['slupek'] = all_stops['slupek'].astype(str)

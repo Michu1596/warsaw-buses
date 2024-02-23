@@ -22,6 +22,7 @@ def exceeded_limit(limit, dlon, dlat, time_diff, vehicle_number, vechicle_number
     return None
 
 
+# This function uses geo data from buses to determine if the bus exceeded the velocity limit
 def exceeded_velocity(limit, locations_file, output_file='velocity_exceeded.csv', meta_data_file='meta_data.csv'):
     if not os.path.isfile("data\\" + locations_file):
         print("File does not exist")
@@ -91,6 +92,7 @@ def exceeded_velocity(limit, locations_file, output_file='velocity_exceeded.csv'
 
     # save dataframe to csv
     diff_pd.to_csv("data\\" + output_file, index=False)
+
     # save meta data to csv
     meta_data_df = pd.DataFrame([meta_data])
     meta_data_df.to_csv("data\\" + meta_data_file, index=False)

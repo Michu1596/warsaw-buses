@@ -18,13 +18,12 @@ def district_of_point(point):
         polygon = shape(district['geometry'])
         # check if point is in district
         if polygon.contains(point) and district['properties']['name'] != 'Warszawa':
-            # print(district['properties']['name'])
             return district['properties']['name']
     return None
 
 
+# This function adds a column to the buses_locations dataframe with the name of the district
 def district_of_bus(location_file_name, output_file_name='buses_locations_with_district.csv'):
-    # check if location_file_name exists
     if not os.path.isfile(location_file_name):
         raise FileNotFoundError('Locations file not found')
     buses_locations = pd.read_csv(location_file_name)
@@ -33,8 +32,8 @@ def district_of_bus(location_file_name, output_file_name='buses_locations_with_d
     buses_locations.to_csv('data\\' + output_file_name, index=False)
 
 
+# This function counts the number of buses in each district
 def buses_in_districts(location_file_name, sample_size=360, output_file_name='buses_in_districts.csv'):
-    # check if location_file_name exists
     if not os.path.isfile('data\\' + location_file_name):
         raise FileNotFoundError('Locations file not found')
     buses_locations = pd.read_csv('data\\' + location_file_name)

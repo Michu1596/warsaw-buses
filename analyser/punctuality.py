@@ -1,4 +1,3 @@
-import analyser
 import pandas as pd
 import os
 from analyser import distance2
@@ -8,13 +7,10 @@ import time
 # This function uses geo data from buses and bus stops to determine if the bus is on the bus stop
 # and if it is, it saves the data to a csv file
 def punctuality_of_line(locations_file, line, km_threshold=0.10):
-    # from data directory import lcoations20_40.csv to dataframe
     point0 = time.time()
     locations = pd.read_csv('data\\' + locations_file)
-    # chceck if schedules + line + .csv exists and if not, throw an error
     if not os.path.isfile('data\\schedules' + line + '.csv'):
         raise FileNotFoundError('File not found')
-    # from data directory import schedules + line + .csv to dataframe
     schedules = pd.read_csv('data\\schedules' + line + '.csv')
     point1 = time.time()
     print("Time to read csv: ", point1 - point0)
@@ -24,9 +20,8 @@ def punctuality_of_line(locations_file, line, km_threshold=0.10):
     locations = locations[locations['lines'] == line]
     locations = locations.rename(columns={'szer_geo': 'szer_geo_bus', 'dl_geo': 'dl_geo_bus',
                                           'time': 'time_bus'})
-
-    # set time to datetime
     locations['time_bus'] = pd.to_datetime(locations['time_bus']).dt.time
+
     # convert time_stop to time HH:MM:SS
     schedules['time_stop'] = pd.to_datetime(schedules['time_stop'], format='%H:%M:%S').dt.time
 
@@ -34,7 +29,7 @@ def punctuality_of_line(locations_file, line, km_threshold=0.10):
     schedules['brigade'] = schedules['brigade'].astype(str)
     locations['brigade'] = locations['brigade'].astype(str)
 
-    # merge schedules and locations
+    # merge schedules and locations on brigade
     buses_on_stops = schedules.merge(locations, on='brigade')
     point2 = time.time()
     print("Time to merge: ", point2 - point1)
@@ -49,14 +44,17 @@ def punctuality_of_line(locations_file, line, km_threshold=0.10):
     buses_on_stops = buses_on_stops[mask]
     point4 = time.time()
     print("Time to calculate time difference: ", point4 - point3)
+
     # remove duplicate rows
     buses_on_stops = buses_on_stops.drop_duplicates()
+
     # remove rows with NaN values
     buses_on_stops = buses_on_stops.dropna()
     # save buses_on_stops to csv in data directory
     buses_on_stops.to_csv('data\\buses_on_stops' + line + '.csv', index=False)
 
 
+# This function uses data from buses_on_stops to determine if the bus is late or early
 def test_punctuality_of_line(line, threshold=3, output_file='buses_late_or_early.csv'):
     time0 = time.time()
     buses_on_stops = pd.read_csv('data\\buses_on_stops' + line + '.csv')

@@ -3,15 +3,13 @@ import os
 import time
 from analyser import distance2
 
-
+# This funnction uses geo data from buses and bus stops to determine if the bus is on the bus stop
 def buses_on_bus_stops(locations_file, line, km_threshold=0.10):
-    # from data directory import lcoations20_40.csv to dataframe
     point0 = time.time()
-    # check if locations_file exists
     if not os.path.isfile('data\\' + locations_file):
         raise FileNotFoundError('Locations file not found')
     locations = pd.read_csv('data\\' + locations_file)
-    # chceck if schedule + line + .csv exists and if not, throw an error
+
     if not os.path.isfile('data\\schedules' + line + '.csv'):
         raise FileNotFoundError('Schedules file not found')
     locations = locations[locations['lines'] == line]
@@ -26,9 +24,7 @@ def buses_on_bus_stops(locations_file, line, km_threshold=0.10):
     mask = buses_on_stops.apply(lambda row: distance2(row['dl_geo_stop'] - row['dl_geo_bus'],
                                         row['szer_geo_stop'] - row['szer_geo_bus']) < km_threshold, axis=1)
     buses_on_stops = buses_on_stops[mask]
-    # remo columns id_ulicy, brigade, type
     buses_on_stops = buses_on_stops.drop(columns=['id_ulicy', 'brigade', 'type'])
-    # sort by vehicle_number and time
     buses_on_stops = buses_on_stops.sort_values(by=['vehicle_number', 'time_bus'])
     # reorder columns make vehicle_number and time_bus first
     buses_on_stops = buses_on_stops[['vehicle_number', 'time_bus', 'zespol', 'slupek', 'nazwa_zespolu', 'szer_geo_stop',
@@ -41,6 +37,7 @@ def buses_on_bus_stops(locations_file, line, km_threshold=0.10):
     return buses_on_stops
 
 
+# This function calculates transit time between bus stops based on data from buses_on_stops
 def calculate_transit_time(line):
     buses_on_stops = pd.read_csv('data\\buses_on_stops_simplified' + line + '.csv')
     buses_on_stops['time_bus'] = pd.to_datetime(buses_on_stops['time_bus'])
@@ -70,6 +67,7 @@ def calculate_transit_time(line):
     return buses_on_stops
 
 
+# This function uses data about typical route of the line and transit time to calculate transit time on the route
 def fit_to_schedule(line, output_file='fit_to_schedule.csv'):
     all_routes = pd.read_json('data\\all_routes.json')
     # read transit_time + line + .csv
@@ -100,7 +98,6 @@ def fit_to_schedule(line, output_file='fit_to_schedule.csv'):
         blue = (0, 0, 255)
         # make column color and set to gradient from blue to yellow
         df['color'] = df['time_diff'].apply(lambda x: gradient(min_time_diff, max_time_diff, x, blue, yellow))
-        # df['color'] = df['time_diff'].apply(lambda x: "rgb(0, 0, 255)" if x < 1 else "rgb(255, 255, 0)")
         # save to csv
         df.to_csv('data\\' + route + output_file, index=False)
 
